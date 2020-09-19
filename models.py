@@ -1,8 +1,7 @@
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ARRAY, ForeignKey
-from app import app
-from setup import setup_db
 
-db = setup_db(app=app)
+db = SQLAlchemy()
 
 
 # ----------------------------------------------------------------------------

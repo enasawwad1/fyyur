@@ -2,6 +2,19 @@
 {% block title %}Fyyur | Venues{% endblock %}
 {% block content %}
 {% for area in areas %}
+
+<script>
+    function delete_venue(venue_id){
+    $.ajax({
+    url: '/venues/'+venue_id+'/delete',
+    type: 'DELETE',
+    success: function(result) {
+        window.location.href = 'http://127.0.0.1:5000/';
+    }
+});
+        }
+
+</script>
 <h3>{{ area.city }}, {{ area.state }}</h3>
 	<ul class="items">
 		{% for venue in area.venues %}
@@ -10,6 +23,24 @@
 				<i class="fas fa-music"></i>
 				<div class="item">
 					<h5>{{ venue.name }}</h5>
+					  <div class="row">
+                    <div class="col-sm-6">
+                        <div class="col-sm-3">
+                            <h3>
+                                <a href="/venues/{{ venue.id }}/edit">
+                                    <button class="btn btn-primary btn-lg">Edit Venue</button>
+                                </a>
+
+                            </h3>
+                        </div>
+                        <h3>
+                            <div class="col-sm-3">
+                                <input type="submit" value="Delete Venue" class="btn btn-primary btn-lg "
+                                       onclick="delete_venue({{ venue.id }})">
+                            </div>
+                        </h3>
+                    </div>
+                </div>
 				</div>
 			</a>
 		</li>

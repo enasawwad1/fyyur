@@ -7,14 +7,16 @@ from logging import Formatter, FileHandler
 
 import babel
 import dateutil.parser
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from flask_moment import Moment
+from werkzeug.exceptions import abort
 
 from forms import *
 # ----------------------------------------------------------------------------#
 # App Config.
 # ----------------------------------------------------------------------------#
 # TODO: connect to a local postgresql database
+from models import Artist, Venue, Show
 from setup import setup_db
 
 app = Flask(__name__)
@@ -203,14 +205,21 @@ def create_venue_submission():
     return render_template('pages/home.html')
 
 
-@app.route('/venues/<venue_id>', methods=['DELETE'])
+@app.route('/venues/<venue_id>/delete', methods=['DELETE'])
 def delete_venue(venue_id):
-    # TODO: Complete this endpoint for taking a venue_id, and using
-    # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-
-    # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-    # clicking that button delete it from the db then redirect the user to the homepage
-    return None
+    error = False
+    try:
+        Venue.query.filter_by(id=venue_id).delete()
+        db.session.commit()
+    except:
+        error = True
+        db.session.rollback()
+    finally:
+        db.session.close()
+        if error:
+            abort(400)
+        else:
+            return jsonify({'success': True})
 
 
 #  Artists
@@ -407,6 +416,23 @@ def create_artist_submission():
     return render_template('pages/home.html')
 
 
+@app.route('/artists/<artist_id>/delete', methods=['DELETE'])
+def delete_artist(artist_id):
+    error = False
+    try:
+        Artist.query.filter_by(id=artist_id).delete()
+        db.session.commit()
+    except:
+        error = True
+        db.session.rollback()
+    finally:
+        db.session.close()
+        if error:
+            abort(400)
+        else:
+            return jsonify({'success': True})
+
+
 #  Shows
 #  ----------------------------------------------------------------
 
@@ -472,6 +498,23 @@ def create_show_submission():
     # e.g., flash('An error occurred. Show could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
     return render_template('pages/home.html')
+
+
+@app.route('/shows/<show_id>/delete', methods=['DELETE'])
+def delete_show(show_id):
+    error = False
+    try:
+        Show.query.filter_by(id=show_id).delete()
+        db.session.commit()
+    except:
+        error = True
+        db.session.rollback()
+    finally:
+        db.session.close()
+        if error:
+            abort(400)
+        else:
+            return jsonify({'success': True})
 
 
 @app.errorhandler(404)
