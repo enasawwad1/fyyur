@@ -1,7 +1,16 @@
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, ARRAY, ForeignKey
 
 db = SQLAlchemy()
+
+
+def db_setup(app):
+    app.config.from_object('config')
+    db.app = app
+    db.init_app(app)
+    migrate = Migrate(app, db)
+    return db
 
 
 # ----------------------------------------------------------------------------
@@ -47,8 +56,9 @@ class Show(db.Model):
     __tablename__ = 'Show'
 
     id = db.Column(db.Integer, primary_key=True)
-    show_title = db.Column(db.String, nullable=False)
+    show_title = db.Column(db.String(), nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
     description = db.Column(db.String(500), nullable=True)
     register_link = db.Column(db.String(500), nullable=True)
+    start_time = db.Column(String(), nullable=False)

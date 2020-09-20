@@ -16,12 +16,11 @@ from forms import *
 # App Config.
 # ----------------------------------------------------------------------------#
 # TODO: connect to a local postgresql database
-from models import Artist, Venue, Show
-from setup import setup_db
+from models import Artist, Venue, Show, db_setup
 
 app = Flask(__name__)
 moment = Moment(app)
-db = setup_db(app=app)
+db = db_setup(app=app)
 
 
 #
