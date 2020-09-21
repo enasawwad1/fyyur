@@ -2,7 +2,7 @@ from datetime import datetime
 from flask_wtf import Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, ValidationError, \
     SubmitField
-from wtforms.validators import DataRequired, AnyOf, URL, Length
+from wtforms.validators import DataRequired, AnyOf, URL, Length, Optional
 import re
 
 state_choices = [('AL', 'AL'),
@@ -101,8 +101,9 @@ class ShowForm(Form):
         'description', validators=[Length(max=500)]
     )
     register_link = StringField(
-        'image_link', validators=[URL(), Length(max=500)]
+        'register_link', validators=[Optional(URL()), Length(max=500)]
     )
+    submit = SubmitField('submit')
 
 
 class VenueForm(Form):
@@ -133,14 +134,14 @@ class VenueForm(Form):
         'phone', validators=[DataRequired(), Length(max=120)]
     )
     image_link = StringField(
-        'image_link', validators=[URL(), Length(max=500)]
+        'image_link', validators=[Optional(URL()), Length(max=500)]
     )
     genres = SelectMultipleField(
         'genres', validators=[DataRequired()],
         choices=genres_choices
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL(), Length(max=500)]
+        'facebook_link', validators=[Optional(URL()), Length(max=500)]
     )
 
     seeking_talent = BooleanField(
@@ -149,7 +150,7 @@ class VenueForm(Form):
     seeking_description = StringField(
         'seeking_description', validators=[Length(max=500)]
     )
-    submit = SubmitField('Submit')
+    submit = SubmitField('submit')
 
 
 class ArtistForm(Form):
@@ -199,5 +200,3 @@ class ArtistForm(Form):
         'seeking_description', validators=[Length(max=500)]
     )
     submit = SubmitField('Submit')
-
-# TODO IMPLEMENT NEW ARTIST FORM AND NEW SHOW FORM
