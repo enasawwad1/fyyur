@@ -83,8 +83,6 @@ def venues():
 def search_venues():
     data = []
     venue_search_term = request.form['search_term']
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%S:%M')
-
     if ',' in venue_search_term:
         city_search_term = venue_search_term.split(',')[0]
         state_search_term = venue_search_term.split(',')[1]
@@ -274,8 +272,7 @@ def search_artists():
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
-    # shows the venue page with the given venue_id
-    # TODO: replace with real venue data from the venues table, using venue_id
+    # shows the artist page with the given artist_id
     artist_details = Artist.query.get(artist_id)
     upcoming_shows_list = []
     past_shows_list = []
