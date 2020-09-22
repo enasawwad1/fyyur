@@ -364,8 +364,31 @@ def edit_artist(artist_id):
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-    # TODO: take values from the form submitted, and update existing
-    # artist record with ID <artist_id> using the new attributes
+    artist = Artist.query.get(artist_id)
+    seeking_talent_value = None
+    try:
+        form = ArtistForm(request.form)
+        if form.validate_on_submit():
+            if 'seeking_talent' in request.form:
+                if request.form['seeking_talent'] == 'y':
+                    seeking_talent_value = True
+            artist.name = request.form['name']
+            artist.city = request.form['city']
+            artist.state = request.form['state']
+            artist.phone = request.form['phone']
+            artist.address = request.form['address']
+            artist.website = request.form['address']
+            artist.genres = request.form.getlist('genres')
+            artist.facebook_link = request.form['facebook_link']
+            artist.image_link = request.form['image_link']
+            artist.seeking_talent = seeking_talent_value if seeking_talent_value is not None else False
+            artist.seeking_description = request.form['seeking_description']
+            db.session.commit()
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+    finally:
+        db.session.close()
 
     return redirect(url_for('show_artist', artist_id=artist_id))
 
@@ -402,8 +425,31 @@ def edit_venue(venue_id):
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
-    # TODO: take values from the form submitted, and update existing
-    # venue record with ID <venue_id> using the new attributes
+    venue = Venue.query.get(venue_id)
+    seeking_talent_value = None
+    try:
+        form = VenueForm(request.form)
+        if form.validate_on_submit():
+            if 'seeking_talent' in request.form:
+                if request.form['seeking_talent'] == 'y':
+                    seeking_talent_value = True
+            venue.name = request.form['name']
+            venue.city = request.form['city']
+            venue.state = request.form['state']
+            venue.phone = request.form['phone']
+            venue.address = request.form['address']
+            venue.genres = request.form.getlist('genres')
+            venue.facebook_link = request.form['facebook_link']
+            venue.image_link = request.form['image_link']
+            venue.seeking_talent = seeking_talent_value if seeking_talent_value is not None else False
+            venue.seeking_description = request.form['seeking_description']
+            db.session.commit()
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+    finally:
+        db.session.close()
+
     return redirect(url_for('show_venue', venue_id=venue_id))
 
 
@@ -427,6 +473,28 @@ def edit_show(show_id):
     form.description.data = show_details.description
     form.start_time.data = convert_string_to_datetime(show_details.start_time)
     return render_template('forms/edit_show.html', form=form, show=show)
+
+
+@app.route('/shows/<int:show_id>/edit', methods=['POST'])
+def edit_show_submission(show_id):
+    show = Show.query.get(show_id)
+    try:
+        form = ShowForm(request.form)
+        if form.validate_on_submit():
+            show.show_title = request.form['title']
+            show.artist_id = request.form['artist_id']
+            show.venue_id = request.form['venue_id']
+            show.register_link = request.form['register_link']
+            show.start_time = request.form['start_time']
+            show.description = request.form['description']
+            db.session.commit()
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+    finally:
+        db.session.close()
+
+    return redirect(url_for('shows'))
 
 
 #  Create Artist
@@ -464,7 +532,8 @@ def create_artist_submission():
                             seeking_talent=seeking_talent, seeking_description=seeking_description)
             db.session.add(artist)
             db.session.commit()
-
+        else:
+            error = True
     except SQLAlchemyError as e:
         error = True
         db.session.rollback()
