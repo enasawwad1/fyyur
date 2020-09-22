@@ -60,7 +60,6 @@ def venues():
     for item in city_state_list:
         venues_list = []
         venue_query_list = Venue.query.filter_by(city=item[0], state=item[1]).all()
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%S:%M')
         for venue in venue_query_list:
             venues_list.append({
                 "id": venue.id,
@@ -86,9 +85,10 @@ def search_venues():
     if ',' in venue_search_term:
         city_search_term = venue_search_term.split(',')[0]
         state_search_term = venue_search_term.split(',')[1]
-        venue_list = Venue.query.filter(Venue.city.match(city_search_term), Venue.state.match(state_search_term)).all()
+        venue_list = Venue.query.filter(Venue.city.ilike('%' + city_search_term + '%'),
+                                        Venue.state.ilike('%' + state_search_term + '%')).all()
     else:
-        venue_list = Venue.query.filter(Venue.name.match(venue_search_term)).all()
+        venue_list = Venue.query.filter(Venue.name.ilike('%' + venue_search_term + '%')).all()
     for venue in venue_list:
         data.append({
             "id": venue.id,
@@ -249,10 +249,10 @@ def search_artists():
     if ',' in artist_search_term:
         city_search_term = artist_search_term.split(',')[0]
         state_search_term = artist_search_term.split(',')[1]
-        artist_list = Artist.query.filter(Artist.city.match(city_search_term),
-                                          Artist.state.match(state_search_term)).all()
+        artist_list = Artist.query.filter(Artist.city.ilike('%' + city_search_term + '%'),
+                                          Artist.state.ilike('%' + state_search_term + '%')).all()
     else:
-        artist_list = Artist.query.filter(Artist.name.match(artist_search_term)).all()
+        artist_list = Artist.query.filter(Artist.name.ilike('%' + artist_search_term + '%')).all()
     for artist in artist_list:
         data.append({
             "id": artist.id,
@@ -332,20 +332,33 @@ def show_artist(artist_id):
 @app.route('/artists/<int:artist_id>/edit', methods=['GET'])
 def edit_artist(artist_id):
     form = ArtistForm()
+    artist_details = Artist.query.get(artist_id)
     artist = {
-        "id": 4,
-        "name": "Guns N Petals",
-        "genres": ["Rock n Roll"],
-        "city": "San Francisco",
-        "state": "CA",
-        "phone": "326-123-5000",
-        "website": "https://www.gunsnpetalsband.com",
-        "facebook_link": "https://www.facebook.com/GunsNPetals",
-        "seeking_venue": True,
-        "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-        "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
+        "id": artist_details.id,
+        "name": artist_details.name,
+        "genres": artist_details.genres,
+        "address": artist_details.address,
+        "city": artist_details.city,
+        "state": artist_details.state,
+        "phone": artist_details.phone,
+        'website': artist_details.website,
+        "facebook_link": artist_details.facebook_link,
+        "seeking_talent": artist_details.seeking_talent,
+        "seeking_description": artist_details.seeking_description,
+        "image_link": artist_details.image_link,
     }
-    # TODO: populate form with fields from artist with ID <artist_id>
+    form.name.data = artist_details.name
+    form.genres.data = artist_details.genres
+    form.address.data = artist_details.address
+    form.city.data = artist_details.city
+    form.state.data = artist_details.state
+    form.phone.data = artist_details.phone
+    form.website.data = artist_details.website
+    form.facebook_link.data = artist_details.facebook_link
+    form.seeking_talent.data = artist_details.seeking_talent
+    form.seeking_description.data = artist_details.seeking_description
+    form.image_link.data = artist_details.image_link
+
     return render_template('forms/edit_artist.html', form=form, artist=artist)
 
 
@@ -360,21 +373,30 @@ def edit_artist_submission(artist_id):
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
     form = VenueForm()
+    venue_details = Venue.query.get(venue_id)
     venue = {
-        "id": 1,
-        "name": "The Musical Hop",
-        "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-        "address": "1015 Folsom Street",
-        "city": "San Francisco",
-        "state": "CA",
-        "phone": "123-123-1234",
-        "website": "https://www.themusicalhop.com",
-        "facebook_link": "https://www.facebook.com/TheMusicalHop",
-        "seeking_talent": True,
-        "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-        "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
+        "id": venue_details.id,
+        "name": venue_details.name,
+        "genres": venue_details.genres,
+        "address": venue_details.address,
+        "city": venue_details.city,
+        "state": venue_details.state,
+        "phone": venue_details.phone,
+        "facebook_link": venue_details.facebook_link,
+        "seeking_talent": venue_details.seeking_talent,
+        "seeking_description": venue_details.seeking_description,
+        "image_link": venue_details.image_link,
     }
-    # TODO: populate form with values from venue with ID <venue_id>
+    form.name.data = venue_details.name
+    form.genres.data = venue_details.genres
+    form.address.data = venue_details.address
+    form.city.data = venue_details.city
+    form.state.data = venue_details.state
+    form.phone.data = venue_details.phone
+    form.facebook_link.data = venue_details.facebook_link
+    form.seeking_talent.data = venue_details.seeking_talent
+    form.seeking_description.data = venue_details.seeking_description
+    form.image_link.data = venue_details.image_link
     return render_template('forms/edit_venue.html', form=form, venue=venue)
 
 
@@ -383,6 +405,28 @@ def edit_venue_submission(venue_id):
     # TODO: take values from the form submitted, and update existing
     # venue record with ID <venue_id> using the new attributes
     return redirect(url_for('show_venue', venue_id=venue_id))
+
+
+@app.route('/shows/<int:show_id>/edit', methods=['GET'])
+def edit_show(show_id):
+    form = ShowForm()
+    show_details = Show.query.get(show_id)
+    show = {
+        "id": show_details.id,
+        "title": show_details.show_title,
+        "artist_id": show_details.artist_id,
+        "venue_id": show_details.venue_id,
+        "register_link": show_details.register_link,
+        "description": show_details.description,
+        "start_time": convert_string_to_datetime(show_details.start_time),
+    }
+    form.title.data = show_details.show_title
+    form.artist_id.data = show_details.artist_id
+    form.venue_id.data = show_details.venue_id
+    form.register_link.data = show_details.register_link
+    form.description.data = show_details.description
+    form.start_time.data = convert_string_to_datetime(show_details.start_time)
+    return render_template('forms/edit_show.html', form=form, show=show)
 
 
 #  Create Artist
@@ -533,7 +577,7 @@ def delete_show(show_id):
 def search_shows():
     data = []
     show_search_term = request.form['search_term']
-    shows_list = Show.query.filter(Show.show_title.match(show_search_term)).all()
+    shows_list = Show.query.filter(Show.show_title.ilike('%' + show_search_term + '%')).all()
     for show in shows_list:
         data.append({
             "id": show.id,
