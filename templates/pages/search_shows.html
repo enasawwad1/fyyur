@@ -4,14 +4,18 @@
 <h3>Number of search results for "{{ search_term }}": {{ results.count }}</h3>
 <ul class="items">
     <div class="row shows">
-        {%for show inresults.data %}
+        {%for show in results.data %}
         <div class="col-sm-4">
             <div class="tile tile-show">
+                                        <h3>{{show.title}}</h3>
+
                 <img src="{{ show.artist_image_link }}" alt="Artist Image"/>
                 <h4>{{ show.start_time|datetime('full') }}</h4>
                 <h5><a href="/artists/{{ show.artist_id }}">{{ show.artist_name }}</a></h5>
                 <p>playing at</p>
                 <h5><a href="/venues/{{ show.venue_id }}">{{ show.venue_name }}</a></h5>
+                            <p>{{ show.description }}</p>
+
                 <h3>
                     <a href="/shows/{{ show.id }}/edit">
                         <button class="btn btn-primary">Edit Show</button>
@@ -19,6 +23,7 @@
                     <input type="submit" value="Delete Show" class="btn btn-primary "
                            onclick="delete_show({{ show.id }})">
                 </h3>
+            <h5><a href="show.image_link">Register Link </a></h5>
 
             </div>
 

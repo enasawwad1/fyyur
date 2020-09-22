@@ -54,7 +54,6 @@ def index():
 
 @app.route('/venues')
 def venues():
-
     city_state_list = Venue.query.with_entities(Venue.city, Venue.state).distinct().all()
     data = []
     for item in city_state_list:
@@ -80,16 +79,27 @@ def venues():
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-    # seach for Hop should return "The Musical Hop".
-    # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
+    data = []
+    venue_search_term = request.form['search_term']
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%S:%M')
+
+    if ',' in venue_search_term:
+        city_search_term = venue_search_term.split(',')[0]
+        state_search_term = venue_search_term.split(',')[1]
+        venue_list = Venue.query.filter(Venue.city.match(city_search_term), Venue.state.match(state_search_term)).all()
+    else:
+        venue_list = Venue.query.filter(Venue.name.match(venue_search_term)).all()
+    for venue in venue_list:
+        data.append({
+            "id": venue.id,
+            "name": venue.name,
+            "num_upcoming_shows": len(
+                [show for show in venue.shows if format_datetime(show.start_time) > current_time]) if len(
+                venue.shows) != 0 else 0,
+        })
     response = {
-        "count": 1,
-        "data": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
+        "count": len(venue_list),
+        "data": data
     }
     return render_template('pages/search_venues.html', results=response,
                            search_term=request.form.get('search_term', ''))
@@ -261,16 +271,28 @@ def artists():
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-    # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
-    # search for "band" should return "The Wild Sax Band".
+    data = []
+    artist_search_term = request.form['search_term']
+    current_time = datetime.now().strftime('%Y-%m-%d %H:%S:%M')
+
+    if ',' in artist_search_term:
+        city_search_term = artist_search_term.split(',')[0]
+        state_search_term = artist_search_term.split(',')[1]
+        artist_list = Artist.query.filter(Artist.city.match(city_search_term),
+                                          Artist.state.match(state_search_term)).all()
+    else:
+        artist_list = Artist.query.filter(Artist.name.match(artist_search_term)).all()
+    for artist in artist_list:
+        data.append({
+            "id": artist.id,
+            "name": artist.name,
+            "num_upcoming_shows": len(
+                [show for show in artist.shows if format_datetime(show.start_time) > current_time]) if len(
+                artist.shows) != 0 else 0,
+        })
     response = {
-        "count": 1,
-        "data": [{
-            "id": 4,
-            "name": "Guns N Petals",
-            "num_upcoming_shows": 0,
-        }]
+        "count": len(artist_list),
+        "data": data
     }
     return render_template('pages/search_artists.html', results=response,
                            search_term=request.form.get('search_term', ''))
@@ -490,6 +512,7 @@ def shows():
     for show in shows_list:
         data.append({
             "id": show.id,
+            "title": show.show_title,
             "venue_id": show.venue_id,
             "venue_name": show.Venue.name,
             "artist_id": show.artist_id,
@@ -554,6 +577,32 @@ def delete_show(show_id):
             abort(400)
         else:
             return jsonify({'success': True})
+
+
+@app.route('/shows/search', methods=['POST'])
+def search_shows():
+    data = []
+    show_search_term = request.form['search_term']
+    shows_list = Show.query.filter(Show.show_title.match(show_search_term)).all()
+    for show in shows_list:
+        data.append({
+            "id": show.id,
+            "title": show.show_title,
+            "venue_id": show.venue_id,
+            "venue_name": show.Venue.name,
+            "artist_id": show.artist_id,
+            "artist_name": show.Artist.name,
+            "artist_image_link": show.Artist.image_link,
+            "start_time": format_datetime(show.start_time),
+            "description": show.description,
+            "register_link": show.register_link
+        })
+    response = {
+        "count": len(shows_list),
+        "data": data
+    }
+    return render_template('pages/search_shows.html', results=response,
+                           search_term=request.form.get('search_term', ''))
 
 
 @app.errorhandler(404)
