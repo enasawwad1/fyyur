@@ -14,16 +14,20 @@
 });
         }
 
+
 </script>
 <h3>{{ area.city }}, {{ area.state }}</h3>
-	<ul class="items">
-		{% for venue in area.venues %}
-		<li>
-			<a href="/venues/{{ venue.id }}">
-				<i class="fas fa-music"></i>
-				<div class="item">
-					<h5>{{ venue.name }}</h5>
-					  <div class="row">
+<ul class="items">
+    {% for venue in area.venues %}
+    <li>
+        <a href="/venues/{{ venue.id }}">
+            <i class="fas fa-music"></i>
+            <div class="item">
+                <h5>{{ venue.name }}</h5>
+                 </a>
+                <h5> Num of coming shows :{{ venue.num_upcoming_shows }}</h5>
+
+                <div class="row">
                     <div class="col-sm-6">
                         <div class="col-sm-3">
                             <h3>
@@ -41,10 +45,10 @@
                         </h3>
                     </div>
                 </div>
-				</div>
-			</a>
-		</li>
-		{% endfor %}
-	</ul>
+            </div>
+
+    </li>
+    {% endfor %}
+</ul>
 {% endfor %}
 {% endblock %}
