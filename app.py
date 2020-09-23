@@ -55,8 +55,11 @@ def index():
 
 @app.route('/venues')
 def venues():
+    # Get all city and state exits on venue rows
     city_state_list = Venue.query.with_entities(Venue.city, Venue.state).distinct().all()
     data = []
+    # Get all venues match with  city and state  on venue rows
+
     for item in city_state_list:
         venues_list = []
         venue_query_list = Venue.query.filter_by(city=item[0], state=item[1]).all()
@@ -336,7 +339,7 @@ def edit_artist(artist_id):
     artist = {
         "id": artist_details.id,
         "name": artist_details.name,
-        "genres": artist_details.genres,
+        "genres": ''.join(map(str, artist_details.genres)),
         "address": artist_details.address,
         "city": artist_details.city,
         "state": artist_details.state,
@@ -348,12 +351,12 @@ def edit_artist(artist_id):
         "image_link": artist_details.image_link,
     }
     form.name.data = artist_details.name
-    form.genres.data = artist_details.genres
+    form.genres.data = ''.join(map(str, artist_details.genres))
     form.address.data = artist_details.address
     form.city.data = artist_details.city
     form.state.data = artist_details.state
     form.phone.data = artist_details.phone
-    form.website.data = artist_details.website
+    form.website.data = artist_details.website.replace('}', '').replace('{', '')
     form.facebook_link.data = artist_details.facebook_link
     form.seeking_talent.data = artist_details.seeking_talent
     form.seeking_description.data = artist_details.seeking_description
@@ -365,7 +368,7 @@ def edit_artist(artist_id):
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
     artist = Artist.query.get(artist_id)
-    seeking_talent_value = None
+    seeking_talent_value = False
     try:
         form = ArtistForm(request.form)
         if form.validate_on_submit():
@@ -377,7 +380,7 @@ def edit_artist_submission(artist_id):
             artist.state = request.form['state']
             artist.phone = request.form['phone']
             artist.address = request.form['address']
-            artist.website = request.form['address']
+            artist.website = request.form['website']
             artist.genres = request.form.getlist('genres')
             artist.facebook_link = request.form['facebook_link']
             artist.image_link = request.form['image_link']

@@ -182,13 +182,13 @@ h2.monospace {
   opacity: 0.7;
 }
 .shows .tile-show {
-  height: 430px;
+  height: 530px;
 }
 .tile {
   text-align: center;
   padding: 15px 25px;
   border: solid 1px #ebebeb;
-  height: 430px;
+  height: 530px;
   margin-bottom: 15px;
 }
 .tile img {
